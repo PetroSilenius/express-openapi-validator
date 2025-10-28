@@ -1,7 +1,6 @@
 import Ajv from 'ajv';
 import ajv = require('ajv');
 import * as cloneDeep from 'lodash.clonedeep';
-import * as _get from 'lodash.get';
 import { createRequestAjv } from '../../framework/ajv';
 import {
   OpenAPIV3,
@@ -298,8 +297,8 @@ export class SchemaPreprocessor {
     const nschemas = [node.schema];
 
     if (this.apiDocRes) {
-      const p = _get(this.apiDocRes, parent?.path);
-      const n = _get(this.apiDocRes, node?.path);
+      const p = parent?.path.reduce((obj, key) => obj?.[key], this.apiDocRes);
+      const n = node?.path.reduce((obj, key) => obj?.[key], this.apiDocRes);
       pschemas.push(p);
       nschemas.push(n);
     }
@@ -645,7 +644,7 @@ export class SchemaPreprocessor {
     if (ref && !res) {
       const path = ref.split('/').join('.');
       const p = path.substring(path.indexOf('.') + 1);
-      res = _get(this.apiDoc, p);
+      res = p.split('.').reduce((obj, key) => obj?.[key], this.apiDoc);
     }
     if (ref) {
       this.resolvedSchemaCache.set(ref, res);
